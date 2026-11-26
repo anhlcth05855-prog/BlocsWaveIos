@@ -98,6 +98,7 @@ public struct MainView: View {
                 masterBPM: viewModel.project.masterBPM,
                 micLevel: viewModel.liveMicLevel,
                 isRecording: viewModel.isLiveRecording,
+                errorMessage: viewModel.recordingErrorMessage,
                 targetBars: $viewModel.recordingBarsCount,
                 onStartRecording: {
                     viewModel.startLiveRecording()

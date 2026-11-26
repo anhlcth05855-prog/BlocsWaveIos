@@ -6,6 +6,7 @@ public struct RecordTrackModal: View {
     public let masterBPM: Double
     public let micLevel: Float
     public let isRecording: Bool
+    public var errorMessage: String? = nil
     @Binding public var targetBars: Int
     public let onStartRecording: () -> Void
     public let onStopRecording: () -> Void
@@ -89,6 +90,14 @@ public struct RecordTrackModal: View {
                 .padding(.horizontal)
 
                 Spacer()
+
+                if let errorMessage = errorMessage {
+                    Text(errorMessage)
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(AppColors.recordActive)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                }
 
                 // Big Record / Stop Trigger Button
                 Button {

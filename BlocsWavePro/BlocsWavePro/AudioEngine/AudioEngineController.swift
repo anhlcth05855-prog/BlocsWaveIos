@@ -59,6 +59,8 @@ public final class AudioEngineController {
     // MARK: - Engine Setup
 
     private func setupGraph() {
+        try? AudioSessionManager.shared.configureSession()
+
         let sampleRate: Double = 44100.0
         let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 2)!
 
@@ -83,7 +85,7 @@ public final class AudioEngineController {
         }
 
         do {
-            try AudioSessionManager.shared.configureSession()
+            engine.prepare()
             try engine.start()
             isRunning = true
         } catch {
@@ -91,17 +93,26 @@ public final class AudioEngineController {
         }
     }
 
+    /// Prepares the audio session and restarts the engine if needed so inputNode has a valid hardware format.
+    public func prepareForRecording() throws {
+        try AudioSessionManager.shared.configureSession()
+        let inputFormat = engine.inputNode.outputFormat(forBus: 0)
+        if !engine.isRunning || inputFormat.sampleRate <= 0 || inputFormat.channelCount == 0 {
+            if engine.isRunning {
+                engine.stop()
+            }
+            engine.prepare()
+            try engine.start()
+            isRunning = engine.isRunning
+        }
+    }
+
     // MARK: - Initializing Demo Tracks
 
-    /// Populates all 8 tracks with rich, realistic procedural music loops
-    public func loadProceduralDemoTracks(genre: SoundGenre = .synthwave) {
-        let defaultTypes: [TrackType] = [
-            .kick, .snare, .hihat, .bass,
-            .chords, .lead, .pluck, .vocalFX
-        ]
-
-        for (idx, type) in defaultTypes.enumerated() {
-            let buffer = AudioProceduralGenerator.generateTrackLoop(for: type, genre: genre, bpm: currentBPM, bars: 2)
+    /// Populates all 8 tracks with pre-generated buffers (safe to call on main thread after background synthesis)
+    public func applyPreGeneratedBuffers(_ buffers: [Int: AVAudioPCMBuffer]) {
+        for (idx, buffer) in buffers {
+            guard idx < trackNodes.count else { continue }
             trackBuffers[idx] = buffer
             trackNodes[idx].loadBuffer(
                 buffer,
@@ -112,12 +123,19 @@ public final class AudioEngineController {
 
         updateTempo(currentBPM)
         updateKey(currentKey)
+
+        if isPlaying {
+            for node in trackNodes {
+                node.play()
+            }
+        }
     }
 
     // MARK: - Sound Preset & Sound Bank Management
 
     /// Auditions an individual sound preset in isolation
     public func auditionPreset(_ preset: SoundPreset) {
+        ensureEngineRunning()
         stopAudition()
         let buffer = AudioProceduralGenerator.generateTrackLoop(for: preset.trackType, genre: preset.genre, bpm: currentBPM, bars: 2)
         auditionPlayer.scheduleBuffer(buffer, at: nil, options: .loops, completionHandler: nil)
@@ -171,9 +189,7 @@ public final class AudioEngineController {
     public func startPlayback() {
         guard !isPlaying else { return }
 
-        if !engine.isRunning {
-            try? engine.start()
-        }
+        ensureEngineRunning()
 
         for node in trackNodes {
             node.play()

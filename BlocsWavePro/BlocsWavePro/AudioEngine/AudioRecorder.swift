@@ -47,6 +47,8 @@ public final class AudioRecorder {
         let converter = AVAudioConverter(from: inputFormat, to: targetFormat)
 
         inputNode.removeTap(onBus: 0)
+        self.isRecording = true
+
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: inputFormat) { [weak self] inputBuffer, _ in
             guard let self = self, self.isRecording, let recBuffer = self.recordedBuffer else { return }
 
@@ -66,10 +68,10 @@ public final class AudioRecorder {
                 return
             }
 
-            let framesToCopy = min(inputBuffer.frameLength, remainingFrames)
-
             if let converter = converter {
-                let convertedBuffer = AVAudioPCMBuffer(pcmFormat: self.targetFormat, frameCapacity: framesToCopy)!
+                let ratio = self.targetFormat.sampleRate / inputFormat.sampleRate
+                let outCapacity = max(1, AVAudioFrameCount(ceil(Double(inputBuffer.frameLength) * ratio)))
+                guard let convertedBuffer = AVAudioPCMBuffer(pcmFormat: self.targetFormat, frameCapacity: outCapacity) else { return }
                 var error: NSError?
                 var isEnd = false
 
@@ -83,8 +85,10 @@ public final class AudioRecorder {
                     return inputBuffer
                 }
 
-                converter.convert(to: convertedBuffer, error: &error, withInputFrom: inputBlock)
-                self.appendBuffer(convertedBuffer, into: recBuffer)
+                let status = converter.convert(to: convertedBuffer, error: &error, withInputFrom: inputBlock)
+                if status != .error && convertedBuffer.frameLength > 0 {
+                    self.appendBuffer(convertedBuffer, into: recBuffer)
+                }
             } else {
                 self.appendBuffer(inputBuffer, into: recBuffer)
             }
@@ -93,8 +97,6 @@ public final class AudioRecorder {
                 self.finishRecording()
             }
         }
-
-        self.isRecording = true
     }
 
     private func appendBuffer(_ source: AVAudioPCMBuffer, into destination: AVAudioPCMBuffer) {

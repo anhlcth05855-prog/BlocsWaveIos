@@ -34,6 +34,7 @@ public final class MainLooperViewModel {
     public var liveMicLevel: Float = 0.0
     public var recordingBarsCount: Int = 4
     public var isLiveRecording: Bool = false
+    public var recordingErrorMessage: String? = nil
 
     // Real-time Display Timer for 60 FPS Playhead Sync
     private var displayTimer: Timer?
@@ -63,14 +64,20 @@ public final class MainLooperViewModel {
         // Apply initial section A mute/volume presets immediately
         applySection(songSections[0])
 
+        let initialBPM = project.masterBPM
+        let defaultTypes: [TrackType] = [
+            .kick, .snare, .hihat, .bass,
+            .chords, .lead, .pluck, .vocalFX
+        ]
+
         // Synthesize procedural audio loops off the main thread so the UI renders immediately
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self = self else { return }
-            self.engineController.loadProceduralDemoTracks()
-
-            let buffers = self.engineController.trackBuffers
+            var generatedBuffers: [Int: AVAudioPCMBuffer] = [:]
             var extracted: [(Int, [Float], AVAudioFramePosition, Double)] = []
-            for (idx, buffer) in buffers {
+
+            for (idx, type) in defaultTypes.enumerated() {
+                let buffer = AudioProceduralGenerator.generateTrackLoop(for: type, genre: .synthwave, bpm: initialBPM, bars: 2)
+                generatedBuffers[idx] = buffer
                 let peaks = WaveformExtractor.extractPeaks(from: buffer, targetCount: 96)
                 let frames = AVAudioFramePosition(buffer.frameLength)
                 let duration = Double(buffer.frameLength) / buffer.format.sampleRate
@@ -78,6 +85,8 @@ public final class MainLooperViewModel {
             }
 
             DispatchQueue.main.async {
+                guard let self = self else { return }
+                self.engineController.applyPreGeneratedBuffers(generatedBuffers)
                 for (idx, peaks, frames, duration) in extracted {
                     if idx < self.tracks.count {
                         self.tracks[idx].waveformPeaks = peaks
@@ -275,15 +284,21 @@ public final class MainLooperViewModel {
     public func openRecordingModal(for trackIndex: Int) {
         project.recordingTrackIndex = trackIndex
         selectedTrackIndex = trackIndex
+        recordingErrorMessage = nil
         isRecordingModalPresented = true
     }
 
     public func startLiveRecording() {
+        recordingErrorMessage = nil
         Task { @MainActor in
             let granted = await AudioSessionManager.shared.requestMicrophonePermission()
-            guard granted else { return }
+            guard granted else {
+                self.recordingErrorMessage = "Microphone permission is required. Enable it in iPhone Settings > BlocsWavePro."
+                return
+            }
 
             do {
+                try self.engineController.prepareForRecording()
                 self.isLiveRecording = true
                 try self.engineController.recorder.startRecording(
                     engine: self.engineController.engine,
@@ -291,7 +306,7 @@ public final class MainLooperViewModel {
                     bars: self.recordingBarsCount
                 )
             } catch {
-                print("Failed to start recording: \(error.localizedDescription)")
+                self.recordingErrorMessage = "Recording failed: \(error.localizedDescription)"
                 self.isLiveRecording = false
             }
         }

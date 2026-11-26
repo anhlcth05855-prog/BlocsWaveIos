@@ -19,9 +19,9 @@ public final class AudioSessionManager {
 
         try session.setCategory(.playAndRecord, mode: .default, options: options)
 
-        // Request 5ms low-latency buffer (0.005s) for responsive live looping
-        try session.setPreferredIOBufferDuration(0.005)
-        try session.setPreferredSampleRate(44100.0)
+        // Request 5ms low-latency buffer (0.005s) for responsive live looping (best-effort)
+        try? session.setPreferredIOBufferDuration(0.005)
+        try? session.setPreferredSampleRate(44100.0)
 
         try session.setActive(true, options: .notifyOthersOnDeactivation)
     }
