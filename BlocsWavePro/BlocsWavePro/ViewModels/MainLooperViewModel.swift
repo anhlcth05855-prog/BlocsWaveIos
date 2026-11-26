@@ -132,7 +132,7 @@ public final class MainLooperViewModel {
 
     private func startDisplayTimer() {
         displayTimer?.invalidate()
-        displayTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 60.0, repeats: true) { [weak self] _ in
+        displayTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 30.0, repeats: true) { [weak self] _ in
             self?.updatePlayheads()
         }
         RunLoop.main.add(displayTimer!, forMode: .common)
@@ -376,17 +376,34 @@ public final class MainLooperViewModel {
 
     public func applyGenrePack(_ genre: SoundGenre) {
         self.selectedGenre = genre
-        engineController.applyGenrePack(genre, tracks: tracks)
+        let bpm = engineController.currentBPM
+        let trackSnapshot = tracks.map { ($0.index, $0.type, $0.isUserRecorded) }
 
-        // Resync peaks & names into tracks
-        for (idx, buffer) in engineController.trackBuffers {
-            if idx < tracks.count && !tracks[idx].isUserRecorded {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            var generated: [(Int, AVAudioPCMBuffer, [Float], AVAudioFramePosition, Double, String?)] = []
+
+            for (idx, type, isUserRecorded) in trackSnapshot where !isUserRecorded {
+                let buffer = AudioProceduralGenerator.generateTrackLoop(for: type, genre: genre, bpm: bpm, bars: 2)
                 let peaks = WaveformExtractor.extractPeaks(from: buffer, targetCount: 96)
-                tracks[idx].waveformPeaks = peaks
-                tracks[idx].totalFrames = AVAudioFramePosition(buffer.frameLength)
-                tracks[idx].durationSeconds = Double(buffer.frameLength) / buffer.format.sampleRate
-                if let preset = SoundLibrary.preset(type: tracks[idx].type, genre: genre) {
-                    tracks[idx].name = preset.name
+                let frames = AVAudioFramePosition(buffer.frameLength)
+                let duration = Double(buffer.frameLength) / buffer.format.sampleRate
+                let presetName = SoundLibrary.preset(type: type, genre: genre)?.name
+                generated.append((idx, buffer, peaks, frames, duration, presetName))
+            }
+
+            DispatchQueue.main.async {
+                guard let self = self, self.selectedGenre == genre else { return }
+                for (idx, buffer, peaks, frames, duration, presetName) in generated {
+                    self.engineController.applyPreGeneratedBuffer(buffer, for: idx, bpm: bpm)
+                    if idx < self.tracks.count && !self.tracks[idx].isUserRecorded {
+                        self.tracks[idx].waveformPeaks = peaks
+                        self.tracks[idx].totalFrames = frames
+                        self.tracks[idx].durationSeconds = duration
+                        self.tracks[idx].originalBPM = bpm
+                        if let name = presetName {
+                            self.tracks[idx].name = name
+                        }
+                    }
                 }
             }
         }
@@ -394,15 +411,24 @@ public final class MainLooperViewModel {
 
     public func loadPreset(for trackIndex: Int, preset: SoundPreset) {
         guard trackIndex >= 0 && trackIndex < tracks.count else { return }
-        engineController.loadPreset(preset, for: trackIndex)
+        let bpm = engineController.currentBPM
+        tracks[trackIndex].isUserRecorded = false
+        tracks[trackIndex].name = preset.name
 
-        if let buffer = engineController.trackBuffers[trackIndex] {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            let buffer = AudioProceduralGenerator.generateTrackLoop(for: preset.trackType, genre: preset.genre, bpm: bpm, bars: 2)
             let peaks = WaveformExtractor.extractPeaks(from: buffer, targetCount: 96)
-            tracks[trackIndex].waveformPeaks = peaks
-            tracks[trackIndex].isUserRecorded = false
-            tracks[trackIndex].name = preset.name
-            tracks[trackIndex].totalFrames = AVAudioFramePosition(buffer.frameLength)
-            tracks[trackIndex].durationSeconds = Double(buffer.frameLength) / buffer.format.sampleRate
+            let frames = AVAudioFramePosition(buffer.frameLength)
+            let duration = Double(buffer.frameLength) / buffer.format.sampleRate
+
+            DispatchQueue.main.async {
+                guard let self = self, trackIndex < self.tracks.count else { return }
+                self.engineController.applyPreGeneratedBuffer(buffer, for: trackIndex, bpm: bpm)
+                self.tracks[trackIndex].waveformPeaks = peaks
+                self.tracks[trackIndex].totalFrames = frames
+                self.tracks[trackIndex].durationSeconds = duration
+                self.tracks[trackIndex].originalBPM = bpm
+            }
         }
     }
 

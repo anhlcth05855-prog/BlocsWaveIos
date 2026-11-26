@@ -137,9 +137,16 @@ public final class AudioEngineController {
     public func auditionPreset(_ preset: SoundPreset) {
         ensureEngineRunning()
         stopAudition()
-        let buffer = AudioProceduralGenerator.generateTrackLoop(for: preset.trackType, genre: preset.genre, bpm: currentBPM, bars: 2)
-        auditionPlayer.scheduleBuffer(buffer, at: nil, options: .loops, completionHandler: nil)
-        auditionPlayer.play()
+        let bpm = currentBPM
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            let buffer = AudioProceduralGenerator.generateTrackLoop(for: preset.trackType, genre: preset.genre, bpm: bpm, bars: 2)
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                self.auditionPlayer.stop()
+                self.auditionPlayer.scheduleBuffer(buffer, at: nil, options: .loops, completionHandler: nil)
+                self.auditionPlayer.play()
+            }
+        }
     }
 
     /// Stops any running preset audition
@@ -147,21 +154,24 @@ public final class AudioEngineController {
         auditionPlayer.stop()
     }
 
-    /// Loads an individual sound preset into a specific track
-    public func loadPreset(_ preset: SoundPreset, for trackIndex: Int) {
+    /// Applies a pre-generated buffer to a specific track
+    public func applyPreGeneratedBuffer(_ buffer: AVAudioPCMBuffer, for trackIndex: Int, bpm: Double) {
         guard trackIndex >= 0 && trackIndex < trackNodes.count else { return }
-        let buffer = AudioProceduralGenerator.generateTrackLoop(for: preset.trackType, genre: preset.genre, bpm: currentBPM, bars: 2)
         trackBuffers[trackIndex] = buffer
         trackNodes[trackIndex].loadBuffer(
             buffer,
-            originalBPM: currentBPM,
+            originalBPM: bpm,
             originalKey: currentKey
         )
         trackNodes[trackIndex].updateTempo(masterBPM: currentBPM)
         trackNodes[trackIndex].updatePitch(masterKey: currentKey)
-        if isPlaying {
-            trackNodes[trackIndex].play()
-        }
+    }
+
+    /// Loads an individual sound preset into a specific track
+    public func loadPreset(_ preset: SoundPreset, for trackIndex: Int) {
+        guard trackIndex >= 0 && trackIndex < trackNodes.count else { return }
+        let buffer = AudioProceduralGenerator.generateTrackLoop(for: preset.trackType, genre: preset.genre, bpm: currentBPM, bars: 2)
+        applyPreGeneratedBuffer(buffer, for: trackIndex, bpm: currentBPM)
     }
 
     /// Applies a complete genre sound pack across all tracks
@@ -169,17 +179,7 @@ public final class AudioEngineController {
         for (idx, track) in tracks.enumerated() {
             if !track.isUserRecorded && idx < trackNodes.count {
                 let buffer = AudioProceduralGenerator.generateTrackLoop(for: track.type, genre: genre, bpm: currentBPM, bars: 2)
-                trackBuffers[idx] = buffer
-                trackNodes[idx].loadBuffer(
-                    buffer,
-                    originalBPM: currentBPM,
-                    originalKey: currentKey
-                )
-                trackNodes[idx].updateTempo(masterBPM: currentBPM)
-                trackNodes[idx].updatePitch(masterKey: currentKey)
-                if isPlaying {
-                    trackNodes[idx].play()
-                }
+                applyPreGeneratedBuffer(buffer, for: idx, bpm: currentBPM)
             }
         }
     }

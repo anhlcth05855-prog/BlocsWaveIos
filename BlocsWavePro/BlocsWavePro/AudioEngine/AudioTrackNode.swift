@@ -70,6 +70,10 @@ public final class AudioTrackNode {
         self.originalKey = originalKey
         self.startFrameOffset = 0
         self.scheduledFramesCount = buffer.frameLength
+
+        if isPlaying {
+            schedulePlayback(fromNormalizedPosition: 0.0)
+        }
     }
 
     // MARK: - Playback Control
