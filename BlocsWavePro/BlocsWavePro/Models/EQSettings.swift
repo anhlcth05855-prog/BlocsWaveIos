@@ -29,7 +29,8 @@ public struct EQSettings: Equatable, Codable, Sendable {
 
     /// Applies these parameters directly to an AVAudioUnitEQ node.
     public func apply(to eqNode: AVAudioUnitEQ) {
-        eqNode.bypass = isBypassed
+        let isFlat = (lowGainDB == 0.0 && midGainDB == 0.0 && highGainDB == 0.0)
+        eqNode.bypass = isBypassed || isFlat
 
         guard eqNode.bands.count >= 3 else { return }
 

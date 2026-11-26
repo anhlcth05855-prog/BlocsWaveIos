@@ -19,8 +19,8 @@ public final class AudioSessionManager {
 
         try session.setCategory(.playAndRecord, mode: .default, options: options)
 
-        // Request 5ms low-latency buffer (0.005s) for responsive live looping (best-effort)
-        try? session.setPreferredIOBufferDuration(0.005)
+        // Use 23ms buffer (~1024 frames @ 44.1kHz) for glitch-free multi-track DSP playback
+        try? session.setPreferredIOBufferDuration(0.023)
         try? session.setPreferredSampleRate(44100.0)
 
         try session.setActive(true, options: .notifyOthersOnDeactivation)

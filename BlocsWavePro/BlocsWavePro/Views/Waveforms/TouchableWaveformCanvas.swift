@@ -28,19 +28,17 @@ public struct TouchableWaveformCanvas: View {
             let height = geometry.size.height
 
             ZStack {
-                // Waveform Canvas
-                Canvas { context, size in
-                    drawWaveform(context: context, size: size)
-                    if track.sliceState.isSliceModeEnabled {
-                        drawSliceOverlays(context: context, size: size)
-                    }
-                    drawPlayhead(context: context, size: size)
-                }
-                .background(AppColors.surfaceDark.opacity(0.85))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(track.displayColor.opacity(0.35), lineWidth: 1)
+                // Static Waveform + Slice Overlay (only redraws when peaks or slice state change)
+                WaveformStaticLayer(track: track)
+
+                // Lightweight Playhead Overlay (only redraws the single vertical line)
+                PlayheadLayer(
+                    trackIndex: track.index,
+                    trackColor: track.displayColor,
+                    fallbackProgress: track.playheadProgress,
+                    playheadClock: playheadClock,
+                    isDragging: isDragging,
+                    dragPosition: dragPosition
                 )
 
                 // Touch & Gesture Interaction Layer
@@ -75,8 +73,26 @@ public struct TouchableWaveformCanvas: View {
             }
         }
     }
+}
 
-    // MARK: - Drawing Routines
+/// Static waveform + slice overlay layer cached independently from playhead ticks.
+private struct WaveformStaticLayer: View {
+    let track: TrackModel
+
+    var body: some View {
+        Canvas { context, size in
+            drawWaveform(context: context, size: size)
+            if track.sliceState.isSliceModeEnabled {
+                drawSliceOverlays(context: context, size: size)
+            }
+        }
+        .background(AppColors.surfaceDark.opacity(0.85))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(track.displayColor.opacity(0.35), lineWidth: 1)
+        )
+    }
 
     private func drawWaveform(context: GraphicsContext, size: CGSize) {
         let peaks = track.waveformPeaks.isEmpty ? TrackModel.generateMockPeaks(count: 64, style: track.type) : track.waveformPeaks
@@ -148,35 +164,44 @@ public struct TouchableWaveformCanvas: View {
             .foregroundColor(Color.white.opacity(0.6))
         context.draw(text8, at: CGPoint(x: size.width - (sliceWidth / 2.0), y: 10))
     }
+}
 
-    private func drawPlayhead(context: GraphicsContext, size: CGSize) {
-        let clockPos = track.index < playheadClock.positions.count ? playheadClock.positions[track.index] : track.playheadProgress
-        let currentProgress = isDragging ? dragPosition : clockPos
-        let playheadX = CGFloat(currentProgress) * size.width
+/// Lightweight playhead-only Canvas so moving the playhead never redraws waveform bars.
+private struct PlayheadLayer: View {
+    let trackIndex: Int
+    let trackColor: Color
+    let fallbackProgress: Double
+    let playheadClock: PlayheadClock
+    let isDragging: Bool
+    let dragPosition: Double
 
-        // Vertical Playhead Line
-        var linePath = Path()
-        linePath.move(to: CGPoint(x: playheadX, y: 0))
-        linePath.addLine(to: CGPoint(x: playheadX, y: size.height))
+    var body: some View {
+        Canvas { context, size in
+            let clockPos = trackIndex < playheadClock.positions.count ? playheadClock.positions[trackIndex] : fallbackProgress
+            let currentProgress = isDragging ? dragPosition : clockPos
+            let playheadX = CGFloat(currentProgress) * size.width
 
-        context.stroke(
-            linePath,
-            with: .color(Color.white),
-            lineWidth: 2.0
-        )
+            var linePath = Path()
+            linePath.move(to: CGPoint(x: playheadX, y: 0))
+            linePath.addLine(to: CGPoint(x: playheadX, y: size.height))
 
-        // Neon Glow around Playhead
-        context.stroke(
-            linePath,
-            with: .color(track.displayColor.opacity(0.6)),
-            lineWidth: 5.0
-        )
+            context.stroke(
+                linePath,
+                with: .color(trackColor.opacity(0.6)),
+                lineWidth: 5.0
+            )
+            context.stroke(
+                linePath,
+                with: .color(Color.white),
+                lineWidth: 2.0
+            )
 
-        // Glowing indicator handles at top and bottom
-        let topHandle = CGRect(x: playheadX - 4, y: 0, width: 8, height: 6)
-        context.fill(Path(roundedRect: topHandle, cornerRadius: 2), with: .color(Color.white))
+            let topHandle = CGRect(x: playheadX - 4, y: 0, width: 8, height: 6)
+            context.fill(Path(roundedRect: topHandle, cornerRadius: 2), with: .color(Color.white))
 
-        let bottomHandle = CGRect(x: playheadX - 4, y: size.height - 6, width: 8, height: 6)
-        context.fill(Path(roundedRect: bottomHandle, cornerRadius: 2), with: .color(Color.white))
+            let bottomHandle = CGRect(x: playheadX - 4, y: size.height - 6, width: 8, height: 6)
+            context.fill(Path(roundedRect: bottomHandle, cornerRadius: 2), with: .color(Color.white))
+        }
+        .allowsHitTesting(false)
     }
 }

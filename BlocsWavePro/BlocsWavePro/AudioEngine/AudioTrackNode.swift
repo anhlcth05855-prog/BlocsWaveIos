@@ -39,10 +39,12 @@ public final class AudioTrackNode {
     public init(index: Int) {
         self.index = index
         setupEQDefaults()
+        updateEffectiveVolume()
     }
 
     private func setupEQDefaults() {
         EQSettings.flat.apply(to: eqNode)
+        timePitchNode.bypass = true
     }
 
     /// Attaches and connects all nodes in this track's chain to the master mixer.
@@ -231,6 +233,7 @@ public final class AudioTrackNode {
         // AVAudioUnitTimePitch supports rate between 1/32 (0.03125) and 32.0
         let clampedRate = max(0.25, min(4.0, rateRatio))
         timePitchNode.rate = clampedRate
+        updateTimePitchBypass()
     }
 
     /// Harmonizes track key with Master Key
@@ -239,6 +242,13 @@ public final class AudioTrackNode {
         // AVAudioUnitTimePitch pitch is in cents (-2400 to 2400)
         let cents = Float(semitones * 100)
         timePitchNode.pitch = cents
+        updateTimePitchBypass()
+    }
+
+    private func updateTimePitchBypass() {
+        let isNeutralRate = abs(timePitchNode.rate - 1.0) < 0.001
+        let isNeutralPitch = abs(timePitchNode.pitch) < 1.0
+        timePitchNode.bypass = isNeutralRate && isNeutralPitch
     }
 
     // MARK: - Parametric EQ & Volume / Pan

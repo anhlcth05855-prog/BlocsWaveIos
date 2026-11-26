@@ -156,7 +156,7 @@ public final class MainLooperViewModel {
 
     private func startDisplayTimer() {
         displayTimer?.invalidate()
-        displayTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 30.0, repeats: true) { [weak self] _ in
+        displayTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 24.0, repeats: true) { [weak self] _ in
             self?.updatePlayheads()
         }
         RunLoop.main.add(displayTimer!, forMode: .common)
@@ -166,7 +166,7 @@ public final class MainLooperViewModel {
         guard project.isPlaying else { return }
         let positions = engineController.getPlayheadPositions()
         for (i, pos) in positions.enumerated() {
-            if i < playheadClock.positions.count {
+            if i < playheadClock.positions.count && abs(playheadClock.positions[i] - pos) > 0.003 {
                 playheadClock.positions[i] = pos
             }
         }
