@@ -43,13 +43,16 @@ public final class AudioEngineController {
         setupGraph()
     }
 
-    /// Re-activates audio session and restarts AVAudioEngine when returning from background.
+    /// Re-activates audio session and restarts AVAudioEngine when returning from background or if stopped.
     public func ensureEngineRunning() {
+        guard !engine.isRunning else {
+            isRunning = true
+            return
+        }
         do {
             try AudioSessionManager.shared.configureSession()
-            if !engine.isRunning {
-                try engine.start()
-            }
+            engine.prepare()
+            try engine.start()
             isRunning = engine.isRunning
         } catch {
             print("Failed to resume AVAudioEngine: \(error.localizedDescription)")

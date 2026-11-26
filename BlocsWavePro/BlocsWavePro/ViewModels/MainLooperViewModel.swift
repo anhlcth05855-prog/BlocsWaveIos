@@ -3,6 +3,34 @@ import SwiftUI
 import AVFoundation
 import Observation
 
+/// Lightweight observable clock for playhead positions so only waveform canvases redraw at 30 FPS.
+@Observable
+public final class PlayheadClock {
+    public var positions: [Double] = Array(repeating: 0.0, count: 8)
+    public init() {}
+}
+
+/// Active modal sheet presented by MainView (avoids multiple .sheet conflicts in SwiftUI).
+public enum ActiveSheet: Identifiable {
+    case keyPicker
+    case eqInspector
+    case recording
+    case exportDialog
+    case shareSheet
+    case soundBrowser
+
+    public var id: Int {
+        switch self {
+        case .keyPicker: return 0
+        case .eqInspector: return 1
+        case .recording: return 2
+        case .exportDialog: return 3
+        case .shareSheet: return 4
+        case .soundBrowser: return 5
+        }
+    }
+}
+
 /// Main ViewModel driving the Blocs Wave Pro interface using Swift's `@Observable` macro.
 @Observable
 public final class MainLooperViewModel {
@@ -14,15 +42,11 @@ public final class MainLooperViewModel {
     public var project: ProjectState
     public var tracks: [TrackModel] = []
     public var songSections: [SongSection] = SongSection.defaultSections
+    public let playheadClock = PlayheadClock()
 
     // Active View States & Sheets
     public var selectedTrackIndex: Int = 0
-    public var isRecordingModalPresented: Bool = false
-    public var isEQSheetPresented: Bool = false
-    public var isSoundBrowserPresented: Bool = false
-    public var isExportDialogPresented: Bool = false
-    public var isKeyPickerPresented: Bool = false
-    public var isShareSheetPresented: Bool = false
+    public var activeSheet: ActiveSheet? = nil
     public var selectedGenre: SoundGenre = .synthwave
 
     // Exported artifacts
@@ -111,7 +135,7 @@ public final class MainLooperViewModel {
         engineController.recorder.onRecordingFinished = { [weak self] buffer, peaks in
             guard let self = self else { return }
             self.isLiveRecording = false
-            self.isRecordingModalPresented = false
+            self.activeSheet = nil
 
             let targetIdx = self.project.recordingTrackIndex ?? self.selectedTrackIndex
             guard targetIdx < self.tracks.count else { return }
@@ -142,8 +166,8 @@ public final class MainLooperViewModel {
         guard project.isPlaying else { return }
         let positions = engineController.getPlayheadPositions()
         for (i, pos) in positions.enumerated() {
-            if i < tracks.count {
-                tracks[i].playheadProgress = pos
+            if i < playheadClock.positions.count {
+                playheadClock.positions[i] = pos
             }
         }
     }
@@ -163,21 +187,23 @@ public final class MainLooperViewModel {
     public func stopPlayback() {
         engineController.stopPlayback()
         project.isPlaying = false
-        for i in 0..<tracks.count {
-            tracks[i].playheadProgress = 0.0
+        for i in 0..<playheadClock.positions.count {
+            playheadClock.positions[i] = 0.0
         }
     }
 
     public func seekAll(to position: Double) {
         engineController.seekAll(to: position)
-        for i in 0..<tracks.count {
-            tracks[i].playheadProgress = position
+        for i in 0..<playheadClock.positions.count {
+            playheadClock.positions[i] = position
         }
     }
 
     public func seekTrack(index: Int, position: Double) {
         guard index >= 0 && index < tracks.count else { return }
-        tracks[index].playheadProgress = position
+        if index < playheadClock.positions.count {
+            playheadClock.positions[index] = position
+        }
         engineController.trackNodes[index].seek(to: position)
     }
 
@@ -285,7 +311,7 @@ public final class MainLooperViewModel {
         project.recordingTrackIndex = trackIndex
         selectedTrackIndex = trackIndex
         recordingErrorMessage = nil
-        isRecordingModalPresented = true
+        activeSheet = .recording
     }
 
     public func startLiveRecording() {
@@ -334,7 +360,7 @@ public final class MainLooperViewModel {
                 DispatchQueue.main.async {
                     self.isExporting = false
                     self.exportedFileURLs = [mixdownURL]
-                    self.isShareSheetPresented = true
+                    self.activeSheet = .shareSheet
                 }
             } catch {
                 DispatchQueue.main.async {
@@ -361,7 +387,7 @@ public final class MainLooperViewModel {
                 DispatchQueue.main.async {
                     self.isExporting = false
                     self.exportedFileURLs = stemURLs
-                    self.isShareSheetPresented = true
+                    self.activeSheet = .shareSheet
                 }
             } catch {
                 DispatchQueue.main.async {

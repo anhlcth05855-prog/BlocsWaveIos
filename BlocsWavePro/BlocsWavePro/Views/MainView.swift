@@ -28,7 +28,7 @@ public struct MainView: View {
                         viewModel.handleTapTempo()
                     },
                     onKeyTapped: {
-                        viewModel.isKeyPickerPresented = true
+                        viewModel.activeSheet = .keyPicker
                     },
                     onMetronomeToggled: {
                         viewModel.toggleMetronome()
@@ -40,7 +40,7 @@ public struct MainView: View {
                         viewModel.switchSection(to: sectionID)
                     },
                     onExportTapped: {
-                        viewModel.isExportDialogPresented = true
+                        viewModel.activeSheet = .exportDialog
                     }
                 )
 
@@ -61,85 +61,83 @@ public struct MainView: View {
                 viewModel.handleAppDidBecomeActive()
             }
         }
-        // Sheets & Modals
-        .sheet(isPresented: $viewModel.isKeyPickerPresented) {
-            MasterKeyPickerSheet(
-                currentKey: $viewModel.project.masterKey,
-                onKeySelected: { newKey in
-                    viewModel.setMasterKey(newKey)
-                }
-            )
-        }
-        .sheet(isPresented: $viewModel.isEQSheetPresented) {
-            if viewModel.selectedTrackIndex < viewModel.tracks.count {
-                TrackDetailSheet(
-                    track: $viewModel.tracks[viewModel.selectedTrackIndex],
-                    onVolumeChanged: { vol in
-                        viewModel.setVolume(for: viewModel.selectedTrackIndex, volume: vol)
-                    },
-                    onPanChanged: { pan in
-                        viewModel.setPan(for: viewModel.selectedTrackIndex, pan: pan)
-                    },
-                    onEQChanged: { eq in
-                        viewModel.updateEQ(for: viewModel.selectedTrackIndex, eq: eq)
-                    },
-                    onSliceModeToggled: {
-                        viewModel.toggleSliceMode(for: viewModel.selectedTrackIndex)
-                    },
-                    onSliceSelected: { sliceIdx in
-                        viewModel.triggerSlice(for: viewModel.selectedTrackIndex, sliceIndex: sliceIdx)
+        // Single Sheet Presenter
+        .sheet(item: $viewModel.activeSheet) { sheet in
+            switch sheet {
+            case .keyPicker:
+                MasterKeyPickerSheet(
+                    currentKey: $viewModel.project.masterKey,
+                    onKeySelected: { newKey in
+                        viewModel.setMasterKey(newKey)
                     }
                 )
-            }
-        }
-        .sheet(isPresented: $viewModel.isRecordingModalPresented) {
-            RecordTrackModal(
-                trackIndex: viewModel.selectedTrackIndex,
-                masterBPM: viewModel.project.masterBPM,
-                micLevel: viewModel.liveMicLevel,
-                isRecording: viewModel.isLiveRecording,
-                errorMessage: viewModel.recordingErrorMessage,
-                targetBars: $viewModel.recordingBarsCount,
-                onStartRecording: {
-                    viewModel.startLiveRecording()
-                },
-                onStopRecording: {
-                    viewModel.stopLiveRecording()
+            case .eqInspector:
+                if viewModel.selectedTrackIndex < viewModel.tracks.count {
+                    TrackDetailSheet(
+                        track: $viewModel.tracks[viewModel.selectedTrackIndex],
+                        onVolumeChanged: { vol in
+                            viewModel.setVolume(for: viewModel.selectedTrackIndex, volume: vol)
+                        },
+                        onPanChanged: { pan in
+                            viewModel.setPan(for: viewModel.selectedTrackIndex, pan: pan)
+                        },
+                        onEQChanged: { eq in
+                            viewModel.updateEQ(for: viewModel.selectedTrackIndex, eq: eq)
+                        },
+                        onSliceModeToggled: {
+                            viewModel.toggleSliceMode(for: viewModel.selectedTrackIndex)
+                        },
+                        onSliceSelected: { sliceIdx in
+                            viewModel.triggerSlice(for: viewModel.selectedTrackIndex, sliceIndex: sliceIdx)
+                        }
+                    )
                 }
-            )
-        }
-        .sheet(isPresented: $viewModel.isExportDialogPresented) {
-            ExportDialogView(
-                isExporting: viewModel.isExporting,
-                progressMessage: viewModel.exportProgressMessage,
-                onExportMixdown: {
-                    viewModel.exportMasterMixdown()
-                },
-                onExportStems: {
-                    viewModel.exportAllStems()
-                }
-            )
-        }
-        .sheet(isPresented: $viewModel.isShareSheetPresented) {
-            ShareSheet(activityItems: viewModel.exportedFileURLs)
-        }
-        .sheet(isPresented: $viewModel.isSoundBrowserPresented) {
-            if viewModel.selectedTrackIndex < viewModel.tracks.count {
-                let track = viewModel.tracks[viewModel.selectedTrackIndex]
-                SoundBrowserSheet(
+            case .recording:
+                RecordTrackModal(
                     trackIndex: viewModel.selectedTrackIndex,
-                    trackType: track.type,
-                    currentPresetName: track.name,
-                    onSelectPreset: { preset in
-                        viewModel.loadPreset(for: viewModel.selectedTrackIndex, preset: preset)
+                    masterBPM: viewModel.project.masterBPM,
+                    micLevel: viewModel.liveMicLevel,
+                    isRecording: viewModel.isLiveRecording,
+                    errorMessage: viewModel.recordingErrorMessage,
+                    targetBars: $viewModel.recordingBarsCount,
+                    onStartRecording: {
+                        viewModel.startLiveRecording()
                     },
-                    onAuditionPreset: { preset in
-                        viewModel.auditionPreset(preset)
-                    },
-                    onStopAudition: {
-                        viewModel.stopAudition()
+                    onStopRecording: {
+                        viewModel.stopLiveRecording()
                     }
                 )
+            case .exportDialog:
+                ExportDialogView(
+                    isExporting: viewModel.isExporting,
+                    progressMessage: viewModel.exportProgressMessage,
+                    onExportMixdown: {
+                        viewModel.exportMasterMixdown()
+                    },
+                    onExportStems: {
+                        viewModel.exportAllStems()
+                    }
+                )
+            case .shareSheet:
+                ShareSheet(activityItems: viewModel.exportedFileURLs)
+            case .soundBrowser:
+                if viewModel.selectedTrackIndex < viewModel.tracks.count {
+                    let track = viewModel.tracks[viewModel.selectedTrackIndex]
+                    SoundBrowserSheet(
+                        trackIndex: viewModel.selectedTrackIndex,
+                        trackType: track.type,
+                        currentPresetName: track.name,
+                        onSelectPreset: { preset in
+                            viewModel.loadPreset(for: viewModel.selectedTrackIndex, preset: preset)
+                        },
+                        onAuditionPreset: { preset in
+                            viewModel.auditionPreset(preset)
+                        },
+                        onStopAudition: {
+                            viewModel.stopAudition()
+                        }
+                    )
+                }
             }
         }
     }

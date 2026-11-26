@@ -14,6 +14,7 @@ public struct MultiTrackWaveformListView: View {
                 ForEach($viewModel.tracks) { $track in
                     TrackRowView(
                         track: $track,
+                        playheadClock: viewModel.playheadClock,
                         onSeek: { progress in
                             viewModel.seekTrack(index: track.index, position: progress)
                         },
@@ -34,11 +35,11 @@ public struct MultiTrackWaveformListView: View {
                         },
                         onInspectTapped: {
                             viewModel.selectedTrackIndex = track.index
-                            viewModel.isEQSheetPresented = true
+                            viewModel.activeSheet = .eqInspector
                         },
                         onSoundBrowseTapped: {
                             viewModel.selectedTrackIndex = track.index
-                            viewModel.isSoundBrowserPresented = true
+                            viewModel.activeSheet = .soundBrowser
                         }
                     )
                 }

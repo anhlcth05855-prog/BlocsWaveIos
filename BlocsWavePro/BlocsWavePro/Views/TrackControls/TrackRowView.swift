@@ -3,6 +3,7 @@ import SwiftUI
 /// Compact live looper track row displaying track controls, mute/solo, and touchable waveform.
 public struct TrackRowView: View {
     @Binding public var track: TrackModel
+    public let playheadClock: PlayheadClock
     public let onSeek: (Double) -> Void
     public let onMuteToggled: () -> Void
     public let onSoloToggled: () -> Void
@@ -120,6 +121,7 @@ public struct TrackRowView: View {
                 // Waveform Canvas Column
                 TouchableWaveformCanvas(
                     track: track,
+                    playheadClock: playheadClock,
                     onSeek: onSeek,
                     onSliceTapped: onSliceSelected
                 )

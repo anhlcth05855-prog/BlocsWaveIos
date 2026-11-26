@@ -3,6 +3,7 @@ import SwiftUI
 /// High-performance Canvas-rendered waveform supporting 60 FPS playhead, touch scrubbing, and 8-slice mode.
 public struct TouchableWaveformCanvas: View {
     public let track: TrackModel
+    public let playheadClock: PlayheadClock
     public let onSeek: (Double) -> Void
     public let onSliceTapped: (Int) -> Void
 
@@ -11,10 +12,12 @@ public struct TouchableWaveformCanvas: View {
 
     public init(
         track: TrackModel,
+        playheadClock: PlayheadClock,
         onSeek: @escaping (Double) -> Void,
         onSliceTapped: @escaping (Int) -> Void
     ) {
         self.track = track
+        self.playheadClock = playheadClock
         self.onSeek = onSeek
         self.onSliceTapped = onSliceTapped
     }
@@ -44,7 +47,7 @@ public struct TouchableWaveformCanvas: View {
                 Color.clear
                     .contentShape(Rectangle())
                     .gesture(
-                        DragGesture(minimumDistance: 0)
+                        DragGesture(minimumDistance: 4)
                             .onChanged { value in
                                 guard width > 0 else { return }
                                 isDragging = true
@@ -147,7 +150,8 @@ public struct TouchableWaveformCanvas: View {
     }
 
     private func drawPlayhead(context: GraphicsContext, size: CGSize) {
-        let currentProgress = isDragging ? dragPosition : track.playheadProgress
+        let clockPos = track.index < playheadClock.positions.count ? playheadClock.positions[track.index] : track.playheadProgress
+        let currentProgress = isDragging ? dragPosition : clockPos
         let playheadX = CGFloat(currentProgress) * size.width
 
         // Vertical Playhead Line
