@@ -60,21 +60,38 @@ public final class MainLooperViewModel {
     // MARK: - Setup Engine
 
     private func setupEngine() {
-        engineController.loadProceduralDemoTracks()
+        // Apply initial section A mute/volume presets immediately
+        applySection(songSections[0])
 
-        // Sync initial peaks into tracks
-        for (idx, buffer) in engineController.trackBuffers {
-            if idx < tracks.count {
+        // Synthesize procedural audio loops off the main thread so the UI renders immediately
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
+            self.engineController.loadProceduralDemoTracks()
+
+            let buffers = self.engineController.trackBuffers
+            var extracted: [(Int, [Float], AVAudioFramePosition, Double)] = []
+            for (idx, buffer) in buffers {
                 let peaks = WaveformExtractor.extractPeaks(from: buffer, targetCount: 96)
-                tracks[idx].waveformPeaks = peaks
-                tracks[idx].isLoaded = true
-                tracks[idx].totalFrames = AVAudioFramePosition(buffer.frameLength)
-                tracks[idx].durationSeconds = Double(buffer.frameLength) / buffer.format.sampleRate
+                let frames = AVAudioFramePosition(buffer.frameLength)
+                let duration = Double(buffer.frameLength) / buffer.format.sampleRate
+                extracted.append((idx, peaks, frames, duration))
+            }
+
+            DispatchQueue.main.async {
+                for (idx, peaks, frames, duration) in extracted {
+                    if idx < self.tracks.count {
+                        self.tracks[idx].waveformPeaks = peaks
+                        self.tracks[idx].isLoaded = true
+                        self.tracks[idx].totalFrames = frames
+                        self.tracks[idx].durationSeconds = duration
+                    }
+                }
             }
         }
+    }
 
-        // Apply initial section A mute/volume presets
-        applySection(songSections[0])
+    public func handleAppDidBecomeActive() {
+        engineController.ensureEngineRunning()
     }
 
     private func setupAudioRecorderCallbacks() {

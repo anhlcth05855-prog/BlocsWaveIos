@@ -14,117 +14,117 @@ public struct TopBarView: View {
     public let onExportTapped: () -> Void
 
     public var body: some View {
-        VStack(spacing: 8) {
-            HStack(spacing: 10) {
-                // Master Play / Stop Button
-                Button(action: onTogglePlayback) {
-                    HStack(spacing: 6) {
-                        Image(systemName: project.isPlaying ? "stop.fill" : "play.fill")
-                            .font(.system(size: 16, weight: .bold))
-                        Text(project.isPlaying ? "STOP" : "PLAY")
-                            .font(.system(size: 13, weight: .black, design: .monospaced))
-                    }
-                    .foregroundColor(project.isPlaying ? .black : .white)
-                    .frame(width: 86, height: 38)
-                    .background(project.isPlaying ? AppColors.playActive : AppColors.surfaceCard)
-                    .cornerRadius(8)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(project.isPlaying ? AppColors.playActive : Color.white.opacity(0.15), lineWidth: 1)
-                    )
-                    .shadow(color: project.isPlaying ? AppColors.playActive.opacity(0.6) : .clear, radius: 8)
-                }
-                .buttonStyle(.plain)
-
-                // Master BPM Display & Stepper
-                HStack(spacing: 4) {
-                    Button {
-                        onBPMIncrement(-1.0)
-                    } label: {
-                        Image(systemName: "minus")
-                            .font(.system(size: 11, weight: .bold))
-                            .frame(width: 24, height: 38)
-                            .foregroundColor(AppColors.textSecondary)
-                    }
-
-                    VStack(spacing: 1) {
-                        Text("\(Int(project.masterBPM))")
-                            .font(.system(size: 15, weight: .black, design: .monospaced))
-                            .foregroundColor(.white)
-                        Text("BPM")
-                            .font(.system(size: 8, weight: .bold))
-                            .foregroundColor(AppColors.textMuted)
-                    }
-                    .frame(width: 44)
-
-                    Button {
-                        onBPMIncrement(1.0)
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.system(size: 11, weight: .bold))
-                            .frame(width: 24, height: 38)
-                            .foregroundColor(AppColors.textSecondary)
-                    }
-                }
-                .background(AppColors.surfaceCard)
-                .cornerRadius(8)
-
-                // Tap Tempo Button
-                TapTempoButton(onTap: onTapTempo)
-
-                // Master Key Selector
-                Button(action: onKeyTapped) {
-                    VStack(spacing: 1) {
-                        Text(project.masterKey.displayName)
-                            .font(.system(size: 14, weight: .black, design: .monospaced))
-                            .foregroundColor(AppColors.neonGold)
-                        Text("KEY")
-                            .font(.system(size: 8, weight: .bold))
-                            .foregroundColor(AppColors.textMuted)
-                    }
-                    .frame(width: 58, height: 38)
-                    .background(AppColors.surfaceCard)
-                    .cornerRadius(8)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(AppColors.neonGold.opacity(0.4), lineWidth: 1)
-                    )
-                }
-                .buttonStyle(.plain)
-
-                // Metronome Toggle Button
-                Button(action: onMetronomeToggled) {
-                    Image(systemName: "metronome")
-                        .font(.system(size: 14, weight: .bold))
-                        .frame(width: 38, height: 38)
-                        .foregroundColor(project.isMetronomeEnabled ? .black : AppColors.textSecondary)
-                        .background(project.isMetronomeEnabled ? AppColors.metronomeTick : AppColors.surfaceCard)
+        VStack(alignment: .leading, spacing: 8) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    // Master Play / Stop Button
+                    Button(action: onTogglePlayback) {
+                        HStack(spacing: 5) {
+                            Image(systemName: project.isPlaying ? "stop.fill" : "play.fill")
+                                .font(.system(size: 14, weight: .bold))
+                            Text(project.isPlaying ? "STOP" : "PLAY")
+                                .font(.system(size: 12, weight: .black, design: .monospaced))
+                        }
+                        .foregroundColor(project.isPlaying ? .black : .white)
+                        .frame(width: 76, height: 36)
+                        .background(project.isPlaying ? AppColors.playActive : AppColors.surfaceCard)
                         .cornerRadius(8)
                         .overlay(
                             RoundedRectangle(cornerRadius: 8)
-                                .stroke(project.isMetronomeEnabled ? AppColors.metronomeTick : Color.white.opacity(0.1), lineWidth: 1)
+                                .stroke(project.isPlaying ? AppColors.playActive : Color.white.opacity(0.15), lineWidth: 1)
                         )
-                }
-                .buttonStyle(.plain)
-
-                Spacer()
-
-                // Export Button
-                Button(action: onExportTapped) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "square.and.arrow.up")
-                            .font(.system(size: 13, weight: .bold))
-                        Text("EXPORT")
-                            .font(.system(size: 11, weight: .black, design: .monospaced))
+                        .shadow(color: project.isPlaying ? AppColors.playActive.opacity(0.6) : .clear, radius: 8)
                     }
-                    .foregroundColor(.white)
-                    .frame(height: 38)
-                    .padding(.horizontal, 10)
-                    .background(AppColors.neonPurple.opacity(0.85))
+                    .buttonStyle(.plain)
+
+                    // Master BPM Display & Stepper
+                    HStack(spacing: 2) {
+                        Button {
+                            onBPMIncrement(-1.0)
+                        } label: {
+                            Image(systemName: "minus")
+                                .font(.system(size: 11, weight: .bold))
+                                .frame(width: 22, height: 36)
+                                .foregroundColor(AppColors.textSecondary)
+                        }
+
+                        VStack(spacing: 1) {
+                            Text("\(Int(project.masterBPM))")
+                                .font(.system(size: 14, weight: .black, design: .monospaced))
+                                .foregroundColor(.white)
+                            Text("BPM")
+                                .font(.system(size: 8, weight: .bold))
+                                .foregroundColor(AppColors.textMuted)
+                        }
+                        .frame(width: 40)
+
+                        Button {
+                            onBPMIncrement(1.0)
+                        } label: {
+                            Image(systemName: "plus")
+                                .font(.system(size: 11, weight: .bold))
+                                .frame(width: 22, height: 36)
+                                .foregroundColor(AppColors.textSecondary)
+                        }
+                    }
+                    .background(AppColors.surfaceCard)
                     .cornerRadius(8)
-                    .shadow(color: AppColors.neonPurple.opacity(0.5), radius: 6)
+
+                    // Tap Tempo Button
+                    TapTempoButton(onTap: onTapTempo)
+
+                    // Master Key Selector
+                    Button(action: onKeyTapped) {
+                        VStack(spacing: 1) {
+                            Text(project.masterKey.displayName)
+                                .font(.system(size: 13, weight: .black, design: .monospaced))
+                                .foregroundColor(AppColors.neonGold)
+                            Text("KEY")
+                                .font(.system(size: 8, weight: .bold))
+                                .foregroundColor(AppColors.textMuted)
+                        }
+                        .frame(width: 52, height: 36)
+                        .background(AppColors.surfaceCard)
+                        .cornerRadius(8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(AppColors.neonGold.opacity(0.4), lineWidth: 1)
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    // Metronome Toggle Button
+                    Button(action: onMetronomeToggled) {
+                        Image(systemName: "metronome")
+                            .font(.system(size: 14, weight: .bold))
+                            .frame(width: 36, height: 36)
+                            .foregroundColor(project.isMetronomeEnabled ? .black : AppColors.textSecondary)
+                            .background(project.isMetronomeEnabled ? AppColors.metronomeTick : AppColors.surfaceCard)
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(project.isMetronomeEnabled ? AppColors.metronomeTick : Color.white.opacity(0.1), lineWidth: 1)
+                            )
+                    }
+                    .buttonStyle(.plain)
+
+                    // Export Button
+                    Button(action: onExportTapped) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.system(size: 12, weight: .bold))
+                            Text("EXPORT")
+                                .font(.system(size: 11, weight: .black, design: .monospaced))
+                        }
+                        .foregroundColor(.white)
+                        .frame(height: 36)
+                        .padding(.horizontal, 10)
+                        .background(AppColors.neonPurple.opacity(0.85))
+                        .cornerRadius(8)
+                        .shadow(color: AppColors.neonPurple.opacity(0.5), radius: 6)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
 
             // Sound Packs / Genre Selector Bar

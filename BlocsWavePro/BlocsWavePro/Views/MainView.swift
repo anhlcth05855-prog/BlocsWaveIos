@@ -3,6 +3,7 @@ import SwiftUI
 /// Root SwiftUI View for Blocs Wave Pro live music looping and recording.
 public struct MainView: View {
     @State private var viewModel = MainLooperViewModel()
+    @Environment(\.scenePhase) private var scenePhase
 
     public init() {}
 
@@ -52,8 +53,14 @@ public struct MainView: View {
                 // Master Bottom Quick Controls
                 bottomStatusBar
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .preferredColorScheme(.dark)
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                viewModel.handleAppDidBecomeActive()
+            }
+        }
         // Sheets & Modals
         .sheet(isPresented: $viewModel.isKeyPickerPresented) {
             MasterKeyPickerSheet(
