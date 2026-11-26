@@ -16,17 +16,17 @@ public struct TopBarView: View {
     public var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
+                HStack(spacing: 6) {
                     // Master Play / Stop Button
                     Button(action: onTogglePlayback) {
-                        HStack(spacing: 5) {
+                        HStack(spacing: 4) {
                             Image(systemName: project.isPlaying ? "stop.fill" : "play.fill")
-                                .font(.system(size: 14, weight: .bold))
+                                .font(.system(size: 13, weight: .bold))
                             Text(project.isPlaying ? "STOP" : "PLAY")
-                                .font(.system(size: 12, weight: .black, design: .monospaced))
+                                .font(.system(size: 11, weight: .black, design: .monospaced))
                         }
                         .foregroundColor(project.isPlaying ? .black : .white)
-                        .frame(width: 76, height: 36)
+                        .frame(width: 68, height: 36)
                         .background(project.isPlaying ? AppColors.playActive : AppColors.surfaceCard)
                         .cornerRadius(8)
                         .overlay(
@@ -38,32 +38,32 @@ public struct TopBarView: View {
                     .buttonStyle(.plain)
 
                     // Master BPM Display & Stepper
-                    HStack(spacing: 2) {
+                    HStack(spacing: 0) {
                         Button {
                             onBPMIncrement(-1.0)
                         } label: {
                             Image(systemName: "minus")
-                                .font(.system(size: 11, weight: .bold))
-                                .frame(width: 22, height: 36)
+                                .font(.system(size: 10, weight: .bold))
+                                .frame(width: 20, height: 36)
                                 .foregroundColor(AppColors.textSecondary)
                         }
 
                         VStack(spacing: 1) {
                             Text("\(Int(project.masterBPM))")
-                                .font(.system(size: 14, weight: .black, design: .monospaced))
+                                .font(.system(size: 13, weight: .black, design: .monospaced))
                                 .foregroundColor(.white)
                             Text("BPM")
-                                .font(.system(size: 8, weight: .bold))
+                                .font(.system(size: 7, weight: .bold))
                                 .foregroundColor(AppColors.textMuted)
                         }
-                        .frame(width: 40)
+                        .frame(width: 34)
 
                         Button {
                             onBPMIncrement(1.0)
                         } label: {
                             Image(systemName: "plus")
-                                .font(.system(size: 11, weight: .bold))
-                                .frame(width: 22, height: 36)
+                                .font(.system(size: 10, weight: .bold))
+                                .frame(width: 20, height: 36)
                                 .foregroundColor(AppColors.textSecondary)
                         }
                     }
@@ -77,13 +77,13 @@ public struct TopBarView: View {
                     Button(action: onKeyTapped) {
                         VStack(spacing: 1) {
                             Text(project.masterKey.displayName)
-                                .font(.system(size: 13, weight: .black, design: .monospaced))
+                                .font(.system(size: 12, weight: .black, design: .monospaced))
                                 .foregroundColor(AppColors.neonGold)
                             Text("KEY")
-                                .font(.system(size: 8, weight: .bold))
+                                .font(.system(size: 7, weight: .bold))
                                 .foregroundColor(AppColors.textMuted)
                         }
-                        .frame(width: 52, height: 36)
+                        .frame(width: 48, height: 36)
                         .background(AppColors.surfaceCard)
                         .cornerRadius(8)
                         .overlay(
@@ -96,8 +96,8 @@ public struct TopBarView: View {
                     // Metronome Toggle Button
                     Button(action: onMetronomeToggled) {
                         Image(systemName: "metronome")
-                            .font(.system(size: 14, weight: .bold))
-                            .frame(width: 36, height: 36)
+                            .font(.system(size: 13, weight: .bold))
+                            .frame(width: 32, height: 36)
                             .foregroundColor(project.isMetronomeEnabled ? .black : AppColors.textSecondary)
                             .background(project.isMetronomeEnabled ? AppColors.metronomeTick : AppColors.surfaceCard)
                             .cornerRadius(8)
@@ -110,15 +110,15 @@ public struct TopBarView: View {
 
                     // Export Button
                     Button(action: onExportTapped) {
-                        HStack(spacing: 4) {
+                        HStack(spacing: 3) {
                             Image(systemName: "square.and.arrow.up")
-                                .font(.system(size: 12, weight: .bold))
+                                .font(.system(size: 11, weight: .bold))
                             Text("EXPORT")
-                                .font(.system(size: 11, weight: .black, design: .monospaced))
+                                .font(.system(size: 10, weight: .black, design: .monospaced))
                         }
                         .foregroundColor(.white)
                         .frame(height: 36)
-                        .padding(.horizontal, 10)
+                        .padding(.horizontal, 8)
                         .background(AppColors.neonPurple.opacity(0.85))
                         .cornerRadius(8)
                         .shadow(color: AppColors.neonPurple.opacity(0.5), radius: 6)

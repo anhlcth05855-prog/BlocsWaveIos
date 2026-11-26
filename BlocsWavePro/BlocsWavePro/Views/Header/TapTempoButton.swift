@@ -28,7 +28,7 @@ public struct TapTempoButton: View {
                     .font(.system(size: 8, weight: .bold))
                     .foregroundColor(AppColors.textMuted)
             }
-            .frame(width: 54, height: 38)
+            .frame(width: 44, height: 36)
             .background(AppColors.surfaceCard)
             .cornerRadius(8)
             .overlay(
