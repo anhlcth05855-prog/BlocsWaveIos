@@ -1,0 +1,442 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AA1000012C00000100000001 /* BlocsWaveProApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000012C00000100000001 /* BlocsWaveProApp.swift */; };
+		AA1000022C00000100000002 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000022C00000100000002 /* AppColors.swift */; };
+		AA1000032C00000100000003 /* AppGradients.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000032C00000100000003 /* AppGradients.swift */; };
+		AA1000042C00000100000004 /* MusicalKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000042C00000100000004 /* MusicalKey.swift */; };
+		AA1000052C00000100000005 /* EQSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000052C00000100000005 /* EQSettings.swift */; };
+		AA1000062C00000100000006 /* SliceState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000062C00000100000006 /* SliceState.swift */; };
+		AA1000072C00000100000007 /* SongSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000072C00000100000007 /* SongSection.swift */; };
+		AA1000082C00000100000008 /* TrackModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000082C00000100000008 /* TrackModel.swift */; };
+		AA1000092C00000100000009 /* ProjectState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000092C00000100000009 /* ProjectState.swift */; };
+		AA10000A2C0000010000000A /* AudioSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA20000A2C0000010000000A /* AudioSessionManager.swift */; };
+		AA10000B2C0000010000000B /* WaveformExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA20000B2C0000010000000B /* WaveformExtractor.swift */; };
+		AA10000C2C0000010000000C /* MetronomeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA20000C2C0000010000000C /* MetronomeGenerator.swift */; };
+		AA10000D2C0000010000000D /* AudioProceduralGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA20000D2C0000010000000D /* AudioProceduralGenerator.swift */; };
+		AA10000E2C0000010000000E /* AudioTrackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA20000E2C0000010000000E /* AudioTrackNode.swift */; };
+		AA10000F2C0000010000000F /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA20000F2C0000010000000F /* AudioRecorder.swift */; };
+		AA1000102C00000100000010 /* AudioExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000102C00000100000010 /* AudioExporter.swift */; };
+		AA1000112C00000100000011 /* AudioEngineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000112C00000100000011 /* AudioEngineController.swift */; };
+		AA1000122C00000100000012 /* MainLooperViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000122C00000100000012 /* MainLooperViewModel.swift */; };
+		AA1000132C00000100000013 /* TouchableWaveformCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000132C00000100000013 /* TouchableWaveformCanvas.swift */; };
+		AA1000142C00000100000014 /* SliceOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000142C00000100000014 /* SliceOverlayView.swift */; };
+		AA1000152C00000100000015 /* ParametricEQView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000152C00000100000015 /* ParametricEQView.swift */; };
+		AA1000162C00000100000016 /* TrackDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000162C00000100000016 /* TrackDetailSheet.swift */; };
+		AA1000172C00000100000017 /* TrackRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000172C00000100000017 /* TrackRowView.swift */; };
+		AA1000182C00000100000018 /* TapTempoButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000182C00000100000018 /* TapTempoButton.swift */; };
+		AA1000192C00000100000019 /* MasterKeyPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000192C00000100000019 /* MasterKeyPickerSheet.swift */; };
+		AA10001A2C0000010000001A /* SectionSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA20001A2C0000010000001A /* SectionSelectorView.swift */; };
+		AA10001B2C0000010000001B /* TopBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA20001B2C0000010000001B /* TopBarView.swift */; };
+		AA10001C2C0000010000001C /* InputLevelMeterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA20001C2C0000010000001C /* InputLevelMeterView.swift */; };
+		AA10001D2C0000010000001D /* RecordTrackModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA20001D2C0000010000001D /* RecordTrackModal.swift */; };
+		AA10001E2C0000010000001E /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA20001E2C0000010000001E /* ShareSheet.swift */; };
+		AA10001F2C0000010000001F /* ExportDialogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA20001F2C0000010000001F /* ExportDialogView.swift */; };
+		AA1000202C00000100000020 /* MultiTrackWaveformListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000202C00000100000020 /* MultiTrackWaveformListView.swift */; };
+		AA1000212C00000100000021 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000212C00000100000021 /* MainView.swift */; };
+		AA1000232C00000100000023 /* SoundPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000232C00000100000023 /* SoundPreset.swift */; };
+		AA1000242C00000100000024 /* SoundLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000242C00000100000024 /* SoundLibrary.swift */; };
+		AA1000252C00000100000025 /* SoundBrowserSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000252C00000100000025 /* SoundBrowserSheet.swift */; };
+		AA1000262C00000100000026 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA2000262C00000100000026 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		AA2000002C00000100000000 /* BlocsWavePro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlocsWavePro.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA2000012C00000100000001 /* BlocsWaveProApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlocsWaveProApp.swift; sourceTree = "<group>"; };
+		AA2000022C00000100000002 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
+		AA2000032C00000100000003 /* AppGradients.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppGradients.swift; sourceTree = "<group>"; };
+		AA2000042C00000100000004 /* MusicalKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicalKey.swift; sourceTree = "<group>"; };
+		AA2000052C00000100000005 /* EQSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EQSettings.swift; sourceTree = "<group>"; };
+		AA2000062C00000100000006 /* SliceState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliceState.swift; sourceTree = "<group>"; };
+		AA2000072C00000100000007 /* SongSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongSection.swift; sourceTree = "<group>"; };
+		AA2000082C00000100000008 /* TrackModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackModel.swift; sourceTree = "<group>"; };
+		AA2000092C00000100000009 /* ProjectState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectState.swift; sourceTree = "<group>"; };
+		AA20000A2C0000010000000A /* AudioSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSessionManager.swift; sourceTree = "<group>"; };
+		AA20000B2C0000010000000B /* WaveformExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformExtractor.swift; sourceTree = "<group>"; };
+		AA20000C2C0000010000000C /* MetronomeGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetronomeGenerator.swift; sourceTree = "<group>"; };
+		AA20000D2C0000010000000D /* AudioProceduralGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioProceduralGenerator.swift; sourceTree = "<group>"; };
+		AA20000E2C0000010000000E /* AudioTrackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioTrackNode.swift; sourceTree = "<group>"; };
+		AA20000F2C0000010000000F /* AudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
+		AA2000102C00000100000010 /* AudioExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioExporter.swift; sourceTree = "<group>"; };
+		AA2000112C00000100000011 /* AudioEngineController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineController.swift; sourceTree = "<group>"; };
+		AA2000122C00000100000012 /* MainLooperViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainLooperViewModel.swift; sourceTree = "<group>"; };
+		AA2000132C00000100000013 /* TouchableWaveformCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Waveforms/TouchableWaveformCanvas.swift; sourceTree = "<group>"; };
+		AA2000142C00000100000014 /* SliceOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Waveforms/SliceOverlayView.swift; sourceTree = "<group>"; };
+		AA2000152C00000100000015 /* ParametricEQView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackControls/ParametricEQView.swift; sourceTree = "<group>"; };
+		AA2000162C00000100000016 /* TrackDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackControls/TrackDetailSheet.swift; sourceTree = "<group>"; };
+		AA2000172C00000100000017 /* TrackRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackControls/TrackRowView.swift; sourceTree = "<group>"; };
+		AA2000182C00000100000018 /* TapTempoButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Header/TapTempoButton.swift; sourceTree = "<group>"; };
+		AA2000192C00000100000019 /* MasterKeyPickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Header/MasterKeyPickerSheet.swift; sourceTree = "<group>"; };
+		AA20001A2C0000010000001A /* SectionSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sections/SectionSelectorView.swift; sourceTree = "<group>"; };
+		AA20001B2C0000010000001B /* TopBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Header/TopBarView.swift; sourceTree = "<group>"; };
+		AA20001C2C0000010000001C /* InputLevelMeterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recording/InputLevelMeterView.swift; sourceTree = "<group>"; };
+		AA20001D2C0000010000001D /* RecordTrackModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recording/RecordTrackModal.swift; sourceTree = "<group>"; };
+		AA20001E2C0000010000001E /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Export/ShareSheet.swift; sourceTree = "<group>"; };
+		AA20001F2C0000010000001F /* ExportDialogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Export/ExportDialogView.swift; sourceTree = "<group>"; };
+		AA2000202C00000100000020 /* MultiTrackWaveformListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Waveforms/MultiTrackWaveformListView.swift; sourceTree = "<group>"; };
+		AA2000212C00000100000021 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		AA2000222C00000100000022 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AA2000232C00000100000023 /* SoundPreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundPreset.swift; sourceTree = "<group>"; };
+		AA2000242C00000100000024 /* SoundLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundLibrary.swift; sourceTree = "<group>"; };
+		AA2000252C00000100000025 /* SoundBrowserSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackControls/SoundBrowserSheet.swift; sourceTree = "<group>"; };
+		AA2000262C00000100000026 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AA3000012C00000100000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AA4000012C00000100000001 = {
+			isa = PBXGroup;
+			children = (
+				AA4000022C00000100000002 /* BlocsWavePro */,
+				AA4000032C00000100000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AA4000022C00000100000002 /* BlocsWavePro */ = {
+			isa = PBXGroup;
+			children = (
+				AA4000042C00000100000004 /* App */,
+				AA4000052C00000100000005 /* AudioEngine */,
+				AA4000062C00000100000006 /* Models */,
+				AA4000072C00000100000007 /* ViewModels */,
+				AA4000082C00000100000008 /* Views */,
+				AA4000092C00000100000009 /* Theme */,
+				AA40000A2C0000010000000A /* Resources */,
+			);
+			path = BlocsWavePro;
+			sourceTree = "<group>";
+		};
+		AA4000032C00000100000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AA2000002C00000100000000 /* BlocsWavePro.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AA4000042C00000100000004 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				AA2000012C00000100000001 /* BlocsWaveProApp.swift */,
+				AA2000222C00000100000022 /* Info.plist */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		AA4000052C00000100000005 /* AudioEngine */ = {
+			isa = PBXGroup;
+			children = (
+				AA20000A2C0000010000000A /* AudioSessionManager.swift */,
+				AA20000B2C0000010000000B /* WaveformExtractor.swift */,
+				AA20000C2C0000010000000C /* MetronomeGenerator.swift */,
+				AA20000D2C0000010000000D /* AudioProceduralGenerator.swift */,
+				AA20000E2C0000010000000E /* AudioTrackNode.swift */,
+				AA20000F2C0000010000000F /* AudioRecorder.swift */,
+				AA2000102C00000100000010 /* AudioExporter.swift */,
+				AA2000112C00000100000011 /* AudioEngineController.swift */,
+			);
+			path = AudioEngine;
+			sourceTree = "<group>";
+		};
+		AA4000062C00000100000006 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				AA2000042C00000100000004 /* MusicalKey.swift */,
+				AA2000052C00000100000005 /* EQSettings.swift */,
+				AA2000062C00000100000006 /* SliceState.swift */,
+				AA2000072C00000100000007 /* SongSection.swift */,
+				AA2000082C00000100000008 /* TrackModel.swift */,
+				AA2000092C00000100000009 /* ProjectState.swift */,
+				AA2000232C00000100000023 /* SoundPreset.swift */,
+				AA2000242C00000100000024 /* SoundLibrary.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		AA4000072C00000100000007 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				AA2000122C00000100000012 /* MainLooperViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		AA4000082C00000100000008 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				AA2000212C00000100000021 /* MainView.swift */,
+				AA2000132C00000100000013 /* TouchableWaveformCanvas.swift */,
+				AA2000142C00000100000014 /* SliceOverlayView.swift */,
+				AA2000152C00000100000015 /* ParametricEQView.swift */,
+				AA2000162C00000100000016 /* TrackDetailSheet.swift */,
+				AA2000172C00000100000017 /* TrackRowView.swift */,
+				AA2000182C00000100000018 /* TapTempoButton.swift */,
+				AA2000192C00000100000019 /* MasterKeyPickerSheet.swift */,
+				AA20001A2C0000010000001A /* SectionSelectorView.swift */,
+				AA20001B2C0000010000001B /* TopBarView.swift */,
+				AA20001C2C0000010000001C /* InputLevelMeterView.swift */,
+				AA20001D2C0000010000001D /* RecordTrackModal.swift */,
+				AA20001E2C0000010000001E /* ShareSheet.swift */,
+				AA20001F2C0000010000001F /* ExportDialogView.swift */,
+				AA2000202C00000100000020 /* MultiTrackWaveformListView.swift */,
+				AA2000252C00000100000025 /* SoundBrowserSheet.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		AA4000092C00000100000009 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				AA2000022C00000100000002 /* AppColors.swift */,
+				AA2000032C00000100000003 /* AppGradients.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		AA40000A2C0000010000000A /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				AA2000262C00000100000026 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AA5000012C00000100000001 /* BlocsWavePro */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA6000012C00000100000001 /* Build configuration list for PBXNativeTarget "BlocsWavePro" */;
+			buildPhases = (
+				AA7000012C00000100000001 /* Sources */,
+				AA3000012C00000100000001 /* Frameworks */,
+				AA7000022C00000100000002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BlocsWavePro;
+			productName = BlocsWavePro;
+			productReference = AA2000002C00000100000000 /* BlocsWavePro.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AA8000012C00000100000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					AA5000012C00000100000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = AA6000022C00000100000002 /* Build configuration list for PBXProject "BlocsWavePro" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = AA4000012C00000100000001;
+			productRefGroup = AA4000032C00000100000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AA5000012C00000100000001 /* BlocsWavePro */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AA7000022C00000100000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA1000262C00000100000026 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AA7000012C00000100000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA1000012C00000100000001 /* BlocsWaveProApp.swift in Sources */,
+				AA1000022C00000100000002 /* AppColors.swift in Sources */,
+				AA1000032C00000100000003 /* AppGradients.swift in Sources */,
+				AA1000042C00000100000004 /* MusicalKey.swift in Sources */,
+				AA1000052C00000100000005 /* EQSettings.swift in Sources */,
+				AA1000062C00000100000006 /* SliceState.swift in Sources */,
+				AA1000072C00000100000007 /* SongSection.swift in Sources */,
+				AA1000082C00000100000008 /* TrackModel.swift in Sources */,
+				AA1000092C00000100000009 /* ProjectState.swift in Sources */,
+				AA10000A2C0000010000000A /* AudioSessionManager.swift in Sources */,
+				AA10000B2C0000010000000B /* WaveformExtractor.swift in Sources */,
+				AA10000C2C0000010000000C /* MetronomeGenerator.swift in Sources */,
+				AA10000D2C0000010000000D /* AudioProceduralGenerator.swift in Sources */,
+				AA10000E2C0000010000000E /* AudioTrackNode.swift in Sources */,
+				AA10000F2C0000010000000F /* AudioRecorder.swift in Sources */,
+				AA1000102C00000100000010 /* AudioExporter.swift in Sources */,
+				AA1000112C00000100000011 /* AudioEngineController.swift in Sources */,
+				AA1000122C00000100000012 /* MainLooperViewModel.swift in Sources */,
+				AA1000132C00000100000013 /* TouchableWaveformCanvas.swift in Sources */,
+				AA1000142C00000100000014 /* SliceOverlayView.swift in Sources */,
+				AA1000152C00000100000015 /* ParametricEQView.swift in Sources */,
+				AA1000162C00000100000016 /* TrackDetailSheet.swift in Sources */,
+				AA1000172C00000100000017 /* TrackRowView.swift in Sources */,
+				AA1000182C00000100000018 /* TapTempoButton.swift in Sources */,
+				AA1000192C00000100000019 /* MasterKeyPickerSheet.swift in Sources */,
+				AA10001A2C0000010000001A /* SectionSelectorView.swift in Sources */,
+				AA10001B2C0000010000001B /* TopBarView.swift in Sources */,
+				AA10001C2C0000010000001C /* InputLevelMeterView.swift in Sources */,
+				AA10001D2C0000010000001D /* RecordTrackModal.swift in Sources */,
+				AA10001E2C0000010000001E /* ShareSheet.swift in Sources */,
+				AA10001F2C0000010000001F /* ExportDialogView.swift in Sources */,
+				AA1000202C00000100000020 /* MultiTrackWaveformListView.swift in Sources */,
+				AA1000212C00000100000021 /* MainView.swift in Sources */,
+				AA1000232C00000100000023 /* SoundPreset.swift in Sources */,
+				AA1000242C00000100000024 /* SoundLibrary.swift in Sources */,
+				AA1000252C00000100000025 /* SoundBrowserSheet.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		AA9000012C00000100000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				ENABLE_BITCODE = NO;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		AA9000022C00000100000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				ENABLE_BITCODE = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		AA9000032C00000100000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = BlocsWavePro/App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.blocswavepro.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AA9000042C00000100000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = BlocsWavePro/App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.blocswavepro.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AA6000012C00000100000001 /* Build configuration list for PBXNativeTarget "BlocsWavePro" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA9000032C00000100000003 /* Debug */,
+				AA9000042C00000100000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA6000022C00000100000002 /* Build configuration list for PBXProject "BlocsWavePro" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA9000012C00000100000001 /* Debug */,
+				AA9000022C00000100000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = AA8000012C00000100000001 /* Project object */;
+}

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blocs Wave Pro - iOS Audio Engine Simulator & Live Looper</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Master Transport & Controls -->
+        <header class="top-bar">
+            <div class="brand">
+                <span class="neon-wave">🌊</span>
+                <div class="brand-text">
+                    <h1>BLOCS WAVE <span>PRO</span></h1>
+                    <span class="tag">iOS 17+ SWIFTUI AUDIO ENGINE</span>
+                </div>
+            </div>
+
+            <div class="master-transport">
+                <button id="btnPlayMaster" class="btn-play">
+                    <span class="play-icon">▶</span>
+                    <span class="play-label">PLAY</span>
+                </button>
+
+                <div class="bpm-control">
+                    <button id="btnBpmMinus" class="btn-mini">-</button>
+                    <div class="bpm-display">
+                        <span id="bpmValue">124</span>
+                        <span class="sub-label">BPM</span>
+                    </div>
+                    <button id="btnBpmPlus" class="btn-mini">+</button>
+                </div>
+
+                <button id="btnTapTempo" class="btn-tool">
+                    <span class="tool-title">TAP</span>
+                    <span class="tool-sub">TEMPO</span>
+                </button>
+
+                <div class="key-control" id="btnKeySelector">
+                    <span class="tool-sub">KEY</span>
+                    <span id="masterKeyDisplay" class="key-value">C Min</span>
+                </div>
+
+                <button id="btnMetronome" class="btn-tool" title="Metronome Click">
+                    <span class="tool-icon">⏱</span>
+                    <span class="tool-sub">CLICK</span>
+                </button>
+
+                <button id="btnExport" class="btn-export">
+                    <span>⬇ EXPORT WAV</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Song Sections Selector (A: Intro, B: Verse, C: Chorus, D: Outro) -->
+        <div class="sections-bar">
+            <span class="section-title">SONG SECTIONS</span>
+            <div class="section-pills">
+                <button class="section-pill active" data-section="A">
+                    <strong>A</strong> <span>Intro</span>
+                </button>
+                <button class="section-pill" data-section="B">
+                    <strong>B</strong> <span>Verse</span>
+                </button>
+                <button class="section-pill" data-section="C">
+                    <strong>C</strong> <span>Chorus</span>
+                </button>
+                <button class="section-pill" data-section="D">
+                    <strong>D</strong> <span>Outro</span>
+                </button>
+            </div>
+            <div class="section-info" id="sectionDesc">Active Section: A (Intro)</div>
+        </div>
+
+        <!-- Genre Sound Packs Bar & Master Recording Action -->
+        <div class="genre-packs-bar">
+            <div class="genre-group">
+                <span class="section-title">SOUND PACKS</span>
+                <div class="genre-pills">
+                    <button class="genre-pill active" data-genre="synthwave">
+                        <span class="genre-icon">🌆</span> <strong>Synthwave 80s</strong>
+                    </button>
+                    <button class="genre-pill" data-genre="edm">
+                        <span class="genre-icon">⚡</span> <strong>EDM Club</strong>
+                    </button>
+                    <button class="genre-pill" data-genre="trap">
+                        <span class="genre-icon">🔥</span> <strong>808 Trap</strong>
+                    </button>
+                    <button class="genre-pill" data-genre="lofi">
+                        <span class="genre-icon">☕</span> <strong>Lo-Fi Chill</strong>
+                    </button>
+                    <button class="genre-pill" data-genre="acoustic">
+                        <span class="genre-icon">🎸</span> <strong>Acoustic Funk</strong>
+                    </button>
+                </div>
+            </div>
+
+            <div class="action-buttons-group">
+                <button class="btn-rec-master" id="btnOpenMasterRecord" title="Record Microphone / Instruments">
+                    <span class="rec-dot"></span>
+                    <span>🎙️ LIVE RECORD</span>
+                </button>
+                <button class="btn-sound-lib" id="btnOpenSoundLibrary" title="Browse Sound Library">
+                    <span>📚 SOUND LIBRARY</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 8 Multi-Track Waveform Canvas Looper Area -->
+        <main class="tracks-container" id="tracksContainer">
+            <!-- Dynamically populated 8 tracks -->
+        </main>
+
+        <!-- Bottom Status Bar -->
+        <footer class="bottom-bar">
+            <div class="status-indicator">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">AUDIO ENGINE READY (Click PLAY to start real-time looping)</span>
+            </div>
+            <div class="engine-specs">
+                <span>44.1kHz 16-Bit Stereo</span>
+                <span>•</span>
+                <span>vDSP Peak Decimation</span>
+                <span>•</span>
+                <span>Low Latency 5ms</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Track EQ & Parameter Modal -->
+    <div class="modal-overlay" id="eqModal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <span id="modalTrackIcon">🎵</span>
+                    <h2 id="modalTrackTitle">Track 1: Kick & Beats</h2>
+                </div>
+                <button class="btn-close" id="btnCloseModal">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- EQ Visualizer Curve -->
+                <div class="eq-curve-container">
+                    <canvas id="eqCanvas" width="480" height="110"></canvas>
+                </div>
+
+                <!-- 3-Band Parametric EQ Sliders -->
+                <div class="eq-bands">
+                    <div class="eq-band">
+                        <label>LOW (120 Hz)</label>
+                        <input type="range" id="eqLow" min="-12" max="12" step="0.5" value="0">
+                        <span id="eqLowVal">0.0 dB</span>
+                    </div>
+                    <div class="eq-band">
+                        <label>MID (1.0 kHz)</label>
+                        <input type="range" id="eqMid" min="-12" max="12" step="0.5" value="0">
+                        <span id="eqMidVal">0.0 dB</span>
+                    </div>
+                    <div class="eq-band">
+                        <label>HIGH (7.0 kHz)</label>
+                        <input type="range" id="eqHigh" min="-12" max="12" step="0.5" value="0">
+                        <span id="eqHighVal">0.0 dB</span>
+                    </div>
+                </div>
+
+                <!-- Volume & Pan -->
+                <div class="channel-controls">
+                    <div class="ctrl-group">
+                        <label>TRACK VOLUME</label>
+                        <input type="range" id="trackVol" min="0" max="1" step="0.01" value="0.85">
+                        <span id="trackVolVal">85%</span>
+                    </div>
+                    <div class="ctrl-group">
+                        <label>STEREO PAN</label>
+                        <input type="range" id="trackPan" min="-1" max="1" step="0.05" value="0">
+                        <span id="trackPanVal">Center</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <!-- Live Microphone Audio Recorder Modal -->
+    <div class="modal-overlay" id="recordModal" style="display: none;">
+        <div class="modal-card modal-record">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <span class="pulse-rec-icon">🎙️</span>
+                    <div>
+                        <h2>LIVE AUDIO RECORDER & SAMPLER</h2>
+                        <span class="sub-modal-text">Record Voice, Whistling, Beatbox, or Instruments directly into your music</span>
+                    </div>
+                </div>
+                <button class="btn-close" id="btnCloseRecordModal">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Target Track Selector -->
+                <div class="record-target-row">
+                    <label>TARGET TRACK:</label>
+                    <select id="recTargetTrackSelect" class="styled-select">
+                        <option value="0">Track 1: Kick & Beats</option>
+                        <option value="1">Track 2: Snare & Claps</option>
+                        <option value="2">Track 3: Hi-Hats & Shaker</option>
+                        <option value="3">Track 4: Sub & Synth Bass</option>
+                        <option value="4">Track 5: Synth Chords</option>
+                        <option value="5">Track 6: Lead Melody</option>
+                        <option value="6">Track 7: Acoustic / Pluck</option>
+                        <option value="7" selected>Track 8: Vocal Chops & FX</option>
+                    </select>
+                </div>
+
+                <!-- Microphone Status & Permission prompt -->
+                <div class="mic-status-box" id="micStatusBox">
+                    <span id="micStatusText">Click "Enable Microphone" or "Start Recording" to sample audio</span>
+                    <button class="btn-mini-action" id="btnRequestMic">Enable Mic</button>
+                </div>
+
+                <!-- Real-time Live Input VU Meter -->
+                <div class="meter-wrapper">
+                    <div class="meter-labels">
+                        <span>INPUT VU LEVEL</span>
+                        <span id="vuLevelPercent">0%</span>
+                    </div>
+                    <div class="meter-bar-bg">
+                        <div class="meter-bar-fill" id="meterBarFill"></div>
+                    </div>
+                </div>
+
+                <!-- Bar Quantization selector (1, 2, 4, 8 Bars) -->
+                <div class="quantize-selector">
+                    <label>QUANTIZED LOOP LENGTH:</label>
+                    <div class="bar-buttons">
+                        <button class="btn-bar" data-bars="1">1 BAR</button>
+                        <button class="btn-bar active" data-bars="2">2 BARS</button>
+                        <button class="btn-bar" data-bars="4">4 BARS</button>
+                        <button class="btn-bar" data-bars="8">8 BARS</button>
+                    </div>
+                </div>
+
+                <!-- Big Animated Record / Stop Button -->
+                <div class="record-action-center">
+                    <button class="btn-record-main" id="btnMainRecordToggle">
+                        <div class="rec-inner-circle">
+                            <span class="rec-main-icon">⏺</span>
+                        </div>
+                        <span class="rec-main-text" id="recBtnLabel">START RECORDING</span>
+                    </button>
+                    <div class="record-timer" id="recordTimerDisplay">Ready to record</div>
+                </div>
+
+                <!-- Status alert banner -->
+                <div class="record-banner" id="recordBanner">
+                    Auto-quantized to master tempo: beat-synced loop with instant waveform & 8-slice pad playback!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound Library & Loop Browser Modal -->
+    <div class="modal-overlay" id="soundLibraryModal" style="display: none;">
+        <div class="modal-card modal-library">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <span>📚</span>
+                    <div>
+                        <h2 id="libraryTitle">SOUND PRESET BROWSER</h2>
+                        <span class="sub-modal-text">Preview and swap instruments, synthesizers & drum loops</span>
+                    </div>
+                </div>
+                <button class="btn-close" id="btnCloseLibraryModal">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Track / Category Filter tabs -->
+                <div class="library-filter-tabs" id="libraryFilterTabs">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <!-- Presets Grid / List -->
+                <div class="presets-list" id="presetsList">
+                    <!-- Populated dynamically with preview & load buttons -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

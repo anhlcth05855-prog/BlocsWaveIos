@@ -1,0 +1,385 @@
+import Foundation
+import SwiftUI
+import AVFoundation
+import Observation
+
+/// Main ViewModel driving the Blocs Wave Pro interface using Swift's `@Observable` macro.
+@Observable
+public final class MainLooperViewModel {
+
+    // Audio Engine
+    private let engineController = AudioEngineController.shared
+
+    // Core Domain State
+    public var project: ProjectState
+    public var tracks: [TrackModel] = []
+    public var songSections: [SongSection] = SongSection.defaultSections
+
+    // Active View States & Sheets
+    public var selectedTrackIndex: Int = 0
+    public var isRecordingModalPresented: Bool = false
+    public var isEQSheetPresented: Bool = false
+    public var isSoundBrowserPresented: Bool = false
+    public var isExportDialogPresented: Bool = false
+    public var isKeyPickerPresented: Bool = false
+    public var isShareSheetPresented: Bool = false
+    public var selectedGenre: SoundGenre = .synthwave
+
+    // Exported artifacts
+    public var exportedFileURLs: [URL] = []
+    public var isExporting: Bool = false
+    public var exportProgressMessage: String = ""
+
+    // Live Recording State
+    public var liveMicLevel: Float = 0.0
+    public var recordingBarsCount: Int = 4
+    public var isLiveRecording: Bool = false
+
+    // Real-time Display Timer for 60 FPS Playhead Sync
+    private var displayTimer: Timer?
+
+    public init() {
+        self.project = ProjectState(
+            title: "Blocs Wave Session 01",
+            masterBPM: 124.0,
+            masterKey: MusicalKey(pitch: .c, mode: .minor),
+            isPlaying: false
+        )
+
+        self.tracks = TrackModel.defaultTrackTemplates()
+
+        setupEngine()
+        setupAudioRecorderCallbacks()
+        startDisplayTimer()
+    }
+
+    deinit {
+        displayTimer?.invalidate()
+    }
+
+    // MARK: - Setup Engine
+
+    private func setupEngine() {
+        engineController.loadProceduralDemoTracks()
+
+        // Sync initial peaks into tracks
+        for (idx, buffer) in engineController.trackBuffers {
+            if idx < tracks.count {
+                let peaks = WaveformExtractor.extractPeaks(from: buffer, targetCount: 96)
+                tracks[idx].waveformPeaks = peaks
+                tracks[idx].isLoaded = true
+                tracks[idx].totalFrames = AVAudioFramePosition(buffer.frameLength)
+                tracks[idx].durationSeconds = Double(buffer.frameLength) / buffer.format.sampleRate
+            }
+        }
+
+        // Apply initial section A mute/volume presets
+        applySection(songSections[0])
+    }
+
+    private func setupAudioRecorderCallbacks() {
+        engineController.recorder.onLevelUpdate = { [weak self] level in
+            self?.liveMicLevel = level
+        }
+
+        engineController.recorder.onRecordingFinished = { [weak self] buffer, peaks in
+            guard let self = self else { return }
+            self.isLiveRecording = false
+            self.isRecordingModalPresented = false
+
+            let targetIdx = self.project.recordingTrackIndex ?? self.selectedTrackIndex
+            guard targetIdx < self.tracks.count else { return }
+
+            self.tracks[targetIdx].waveformPeaks = peaks
+            self.tracks[targetIdx].isUserRecorded = true
+            self.tracks[targetIdx].isLoaded = true
+            self.tracks[targetIdx].originalBPM = self.project.masterBPM
+            self.tracks[targetIdx].name = "Mic Loop \(targetIdx + 1)"
+            self.tracks[targetIdx].totalFrames = AVAudioFramePosition(buffer.frameLength)
+            self.tracks[targetIdx].durationSeconds = Double(buffer.frameLength) / buffer.format.sampleRate
+
+            self.engineController.loadRecordedBuffer(buffer, for: targetIdx, bpm: self.project.masterBPM)
+        }
+    }
+
+    // MARK: - 60 FPS Playhead Display Timer
+
+    private func startDisplayTimer() {
+        displayTimer?.invalidate()
+        displayTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 60.0, repeats: true) { [weak self] _ in
+            self?.updatePlayheads()
+        }
+        RunLoop.main.add(displayTimer!, forMode: .common)
+    }
+
+    private func updatePlayheads() {
+        guard project.isPlaying else { return }
+        let positions = engineController.getPlayheadPositions()
+        for (i, pos) in positions.enumerated() {
+            if i < tracks.count {
+                tracks[i].playheadProgress = pos
+            }
+        }
+    }
+
+    // MARK: - Master Transport Controls
+
+    public func togglePlayback() {
+        if project.isPlaying {
+            engineController.stopPlayback()
+            project.isPlaying = false
+        } else {
+            engineController.startPlayback()
+            project.isPlaying = true
+        }
+    }
+
+    public func stopPlayback() {
+        engineController.stopPlayback()
+        project.isPlaying = false
+        for i in 0..<tracks.count {
+            tracks[i].playheadProgress = 0.0
+        }
+    }
+
+    public func seekAll(to position: Double) {
+        engineController.seekAll(to: position)
+        for i in 0..<tracks.count {
+            tracks[i].playheadProgress = position
+        }
+    }
+
+    public func seekTrack(index: Int, position: Double) {
+        guard index >= 0 && index < tracks.count else { return }
+        tracks[index].playheadProgress = position
+        engineController.trackNodes[index].seek(to: position)
+    }
+
+    // MARK: - BPM & Master Key
+
+    public func setBPM(_ bpm: Double) {
+        let clamped = min(200.0, max(60.0, bpm))
+        project.masterBPM = clamped
+        engineController.updateTempo(clamped)
+    }
+
+    public func incrementBPM(by delta: Double) {
+        setBPM(project.masterBPM + delta)
+    }
+
+    public func handleTapTempo() {
+        if let newBPM = engineController.recordTapTempo() {
+            project.masterBPM = newBPM
+        }
+    }
+
+    public func setMasterKey(_ key: MusicalKey) {
+        project.masterKey = key
+        engineController.updateKey(key)
+    }
+
+    public func toggleMetronome() {
+        project.isMetronomeEnabled.toggle()
+        engineController.isMetronomeEnabled = project.isMetronomeEnabled
+    }
+
+    // MARK: - Track Mixing & Parameters
+
+    public func setVolume(for trackIndex: Int, volume: Float) {
+        guard trackIndex >= 0 && trackIndex < tracks.count else { return }
+        tracks[trackIndex].volume = volume
+        engineController.setVolume(for: trackIndex, volume: volume)
+    }
+
+    public func setPan(for trackIndex: Int, pan: Float) {
+        guard trackIndex >= 0 && trackIndex < tracks.count else { return }
+        tracks[trackIndex].pan = pan
+        engineController.setPan(for: trackIndex, pan: pan)
+    }
+
+    public func toggleMute(for trackIndex: Int) {
+        guard trackIndex >= 0 && trackIndex < tracks.count else { return }
+        tracks[trackIndex].isMuted.toggle()
+        engineController.setMute(for: trackIndex, isMuted: tracks[trackIndex].isMuted)
+    }
+
+    public func toggleSolo(for trackIndex: Int) {
+        guard trackIndex >= 0 && trackIndex < tracks.count else { return }
+        tracks[trackIndex].isSolo.toggle()
+        engineController.setSolo(for: trackIndex, isSolo: tracks[trackIndex].isSolo, tracks: tracks)
+    }
+
+    public func updateEQ(for trackIndex: Int, eq: EQSettings) {
+        guard trackIndex >= 0 && trackIndex < tracks.count else { return }
+        tracks[trackIndex].eqSettings = eq
+        engineController.applyEQ(for: trackIndex, settings: eq)
+    }
+
+    // MARK: - Slice Mode
+
+    public func toggleSliceMode(for trackIndex: Int) {
+        guard trackIndex >= 0 && trackIndex < tracks.count else { return }
+        tracks[trackIndex].sliceState.isSliceModeEnabled.toggle()
+
+        if !tracks[trackIndex].sliceState.isSliceModeEnabled {
+            tracks[trackIndex].sliceState.activeSliceIndex = nil
+            engineController.exitSlice(for: trackIndex)
+        }
+    }
+
+    public func triggerSlice(for trackIndex: Int, sliceIndex: Int) {
+        guard trackIndex >= 0 && trackIndex < tracks.count else { return }
+        tracks[trackIndex].sliceState.isSliceModeEnabled = true
+        tracks[trackIndex].sliceState.activeSliceIndex = sliceIndex
+        engineController.triggerSlice(for: trackIndex, sliceIndex: sliceIndex)
+    }
+
+    // MARK: - Song Sections (A, B, C, D)
+
+    public func switchSection(to sectionID: SectionID) {
+        project.activeSectionID = sectionID
+        guard let section = songSections.first(where: { $0.id == sectionID }) else { return }
+        applySection(section)
+    }
+
+    private func applySection(_ section: SongSection) {
+        for (trackIdx, snapshot) in section.trackSnapshots {
+            if trackIdx < tracks.count {
+                tracks[trackIdx].isMuted = snapshot.isMuted
+                tracks[trackIdx].volume = snapshot.volume
+                engineController.setMute(for: trackIdx, isMuted: snapshot.isMuted)
+                engineController.setVolume(for: trackIdx, volume: snapshot.volume)
+            }
+        }
+    }
+
+    // MARK: - Live Recording
+
+    public func openRecordingModal(for trackIndex: Int) {
+        project.recordingTrackIndex = trackIndex
+        selectedTrackIndex = trackIndex
+        isRecordingModalPresented = true
+    }
+
+    public func startLiveRecording() {
+        Task { @MainActor in
+            let granted = await AudioSessionManager.shared.requestMicrophonePermission()
+            guard granted else { return }
+
+            do {
+                self.isLiveRecording = true
+                try self.engineController.recorder.startRecording(
+                    engine: self.engineController.engine,
+                    bpm: self.project.masterBPM,
+                    bars: self.recordingBarsCount
+                )
+            } catch {
+                print("Failed to start recording: \(error.localizedDescription)")
+                self.isLiveRecording = false
+            }
+        }
+    }
+
+    public func stopLiveRecording() {
+        engineController.recorder.stopRecording()
+    }
+
+    // MARK: - Exporting Mixdown & Stems
+
+    public func exportMasterMixdown() {
+        isExporting = true
+        exportProgressMessage = "Rendering Master Mixdown..."
+
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
+            do {
+                let mixdownURL = try AudioExporter.exportMasterMixdown(
+                    tracks: self.tracks,
+                    buffers: self.engineController.trackBuffers,
+                    durationBars: 8,
+                    masterBPM: self.project.masterBPM
+                )
+                DispatchQueue.main.async {
+                    self.isExporting = false
+                    self.exportedFileURLs = [mixdownURL]
+                    self.isShareSheetPresented = true
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self.isExporting = false
+                    print("Export mixdown failed: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+
+    public func exportAllStems() {
+        isExporting = true
+        exportProgressMessage = "Rendering 8 Stems..."
+
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
+            do {
+                let stemURLs = try AudioExporter.exportStems(
+                    tracks: self.tracks,
+                    buffers: self.engineController.trackBuffers,
+                    durationBars: 8,
+                    masterBPM: self.project.masterBPM
+                )
+                DispatchQueue.main.async {
+                    self.isExporting = false
+                    self.exportedFileURLs = stemURLs
+                    self.isShareSheetPresented = true
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self.isExporting = false
+                    print("Export stems failed: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+
+    // MARK: - Sound Presets & Multi-Genre Sound Packs
+
+    public func applyGenrePack(_ genre: SoundGenre) {
+        self.selectedGenre = genre
+        engineController.applyGenrePack(genre, tracks: tracks)
+
+        // Resync peaks & names into tracks
+        for (idx, buffer) in engineController.trackBuffers {
+            if idx < tracks.count && !tracks[idx].isUserRecorded {
+                let peaks = WaveformExtractor.extractPeaks(from: buffer, targetCount: 96)
+                tracks[idx].waveformPeaks = peaks
+                tracks[idx].totalFrames = AVAudioFramePosition(buffer.frameLength)
+                tracks[idx].durationSeconds = Double(buffer.frameLength) / buffer.format.sampleRate
+                if let preset = SoundLibrary.preset(type: tracks[idx].type, genre: genre) {
+                    tracks[idx].name = preset.name
+                }
+            }
+        }
+    }
+
+    public func loadPreset(for trackIndex: Int, preset: SoundPreset) {
+        guard trackIndex >= 0 && trackIndex < tracks.count else { return }
+        engineController.loadPreset(preset, for: trackIndex)
+
+        if let buffer = engineController.trackBuffers[trackIndex] {
+            let peaks = WaveformExtractor.extractPeaks(from: buffer, targetCount: 96)
+            tracks[trackIndex].waveformPeaks = peaks
+            tracks[trackIndex].isUserRecorded = false
+            tracks[trackIndex].name = preset.name
+            tracks[trackIndex].totalFrames = AVAudioFramePosition(buffer.frameLength)
+            tracks[trackIndex].durationSeconds = Double(buffer.frameLength) / buffer.format.sampleRate
+        }
+    }
+
+    public func auditionPreset(_ preset: SoundPreset) {
+        engineController.auditionPreset(preset)
+    }
+
+    public func stopAudition() {
+        engineController.stopAudition()
+    }
+}
+
